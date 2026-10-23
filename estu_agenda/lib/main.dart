@@ -19,7 +19,7 @@ class MiApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1D969F)),
         useMaterial3: true,
       ),
-      home: const LoginScreen(), // Ahora la app inicia correctamente en el Login
+      home: const CalendarScreen(), // Acceso temporal para revisar el horario.
     );
   }
 }

@@ -3,7 +3,8 @@ import '../models/models.dart';
 import 'materias_tareas_screen.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
-
+import 'horario_widget.dart';
+import '../controllers/tareas_controller.dart' as datos;
 
 class TareaConMateria {
   final Tarea tarea;
@@ -332,7 +333,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             _buildProximaTareaBanner(),
             const SizedBox(height: 20),
-            _buildCalendarioMensual(),
+            const HorarioWidget(),
             const SizedBox(height: 20),
             _buildSeccionTitulo('Accesos rápidos', onTapVerMas: () {}),
             const SizedBox(height: 10),
@@ -403,136 +404,71 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   // --- COMPONENTES VISUALES ---
 
-  Widget _buildProximaTareaBanner() {
-    final proxima = _proximaTarea;
+   Widget _buildProximaTareaBanner() {
+    return ListenableBuilder(
+      listenable: datos.TareasController(),
+      builder: (context, _) {
+        final pendientes = datos.TareasController().tareasPendientes;
+        final cantidad = pendientes.length;
 
-    if (proxima == null) {
-      return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: primaryTeal.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: primaryTeal.withOpacity(0.2)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.task_alt_rounded, color: primaryTeal, size: 28),
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: primaryTeal.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: primaryTeal.withValues(alpha: 0.25),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '¡Estás al día!',
-                    style: TextStyle(
-                      color: primaryTeal,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    'No tienes tareas pendientes',
-                    style: TextStyle(
-                      color: textDark,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Presiona en accesos rápidos para agregar una.',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                  ),
-                ],
+          ),
+          child: Row(
+            children: [
+              Icon(
+                cantidad == 0
+                    ? Icons.task_alt_rounded
+                    : Icons.assignment_outlined,
+                color: primaryTeal,
+                size: 32,
               ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return InkWell(
-      onTap: _abrirPantallaMateriasYTareas,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: primaryTeal.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: primaryTeal.withOpacity(0.25)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.article_outlined, color: primaryTeal, size: 26),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Próxima tarea',
-                    style: TextStyle(
-                      color: primaryTeal,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    proxima.materia.nombre,
-                    style: const TextStyle(
-                      color: textDark,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    proxima.tarea.titulo,
-                    style: TextStyle(color: textDark.withOpacity(0.8), fontSize: 14),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 14, color: primaryTeal),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatearFechaLarga(proxima.tarea.fechaEntrega),
-                        style: const TextStyle(fontSize: 12, color: textDark),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cantidad == 0
+                          ? '¡Estás al día!'
+                          : 'Tienes $cantidad '
+                              '${cantidad == 1 ? "tarea pendiente" : "tareas pendientes"}',
+                      style: const TextStyle(
+                        color: textDark,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.access_time, size: 14, color: primaryTeal),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatearHora(proxima.tarea.fechaEntrega),
-                        style: const TextStyle(fontSize: 12, color: textDark),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      cantidad == 0
+                          ? 'No tienes tareas pendientes.'
+                          : 'Consulta tus actividades para continuar.',
+                      style: const TextStyle(color: textDark),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: primaryTeal, size: 28),
-          ],
-        ),
-      ),
+              IconButton(
+                tooltip: 'Ver tareas',
+                onPressed: _abrirPantallaMateriasYTareas,
+                icon: const Icon(
+                  Icons.chevron_right_rounded,
+                  color: primaryTeal,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
-
   Widget _buildCalendarioMensual() {
     final firstDayOfMonth = DateTime(_visibleMonth.year, _visibleMonth.month, 1);
     final daysInMonth = DateTime(_visibleMonth.year, _visibleMonth.month + 1, 0).day;
@@ -778,84 +714,64 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildListaProximasActividades() {
-    final pendientes = _tareasPendientes;
+    Widget _buildListaProximasActividades() {
+    return ListenableBuilder(
+      listenable: datos.TareasController(),
+      builder: (context, _) {
+        final pendientes = datos.TareasController().tareasPendientes;
 
-    if (pendientes.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: const Center(
-          child: Text(
-            'No hay actividades agendadas',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-        ),
-      );
-    }
+        if (pendientes.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: cardColor,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Center(
+              child: Text('No hay tareas pendientes'),
+            ),
+          );
+        }
 
-    return Column(
-      children: pendientes.take(3).map((item) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            color: cardColor,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ListTile(
-            onTap: _abrirPantallaMateriasYTareas,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: primaryTeal.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.article_outlined, color: primaryTeal, size: 22),
-            ),
-            title: Text(
-              item.tarea.titulo,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: textDark,
-                fontSize: 14,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(item.materia.nombre, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 12, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(_formatearFechaLarga(item.tarea.fechaEntrega), style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                    const SizedBox(width: 10),
-                    const Icon(Icons.access_time, size: 12, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(_formatearHora(item.tarea.fechaEntrega), style: const TextStyle(fontSize: 11, color: Colors.grey)),
-                  ],
+        return Column(
+          children: pendientes.take(3).map((tarea) {
+            final enProceso =
+                tarea.estado == datos.EstadoTarea.enProceso;
+
+            return Card(
+              margin: const EdgeInsets.only(bottom: 10),
+              color: cardColor,
+              child: ListTile(
+                onTap: () {
+                  datos.TareasController()
+                      .seleccionarMateria(tarea.materia);
+                  _abrirPantallaMateriasYTareas();
+                },
+                leading: Icon(
+                  enProceso
+                      ? Icons.pending_actions
+                      : Icons.assignment_outlined,
+                  color: enProceso ? Colors.orange : primaryTeal,
                 ),
-              ],
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
-          ),
+                title: Text(
+                  tarea.titulo,
+                  style: const TextStyle(
+                    color: textDark,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Text(
+                  '${tarea.materia} · '
+                  '${enProceso ? "En proceso" : "Pendiente"}',
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+              ),
+            );
+          }).toList(),
         );
-      }).toList(),
+      },
     );
   }
-
   Widget _buildDrawerOption({
     required IconData icon,
     required String title,
